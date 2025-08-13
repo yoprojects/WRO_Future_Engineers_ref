@@ -112,7 +112,7 @@ Key features:
      ```
    - Clone this repository:
      ```bash
-     git clone [https://github.com/yoprojects/WRO_Future_Engineers_ref.git](https://github.com/yoprojects/WRO_Future_Engineers_ref.git)
+     git clone https://github.com/yoprojects/WRO_Future_Engineers_ref.git
      ```
 2. **ESP32:**
    - Open `/src/esp32/` in PlatformIO or Arduino IDE.
