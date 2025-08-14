@@ -57,7 +57,7 @@ Key features:
 </p>
 
 - **Siddharth Andhale** – Lead Design & Programming – [sidd1212004@gmail.com](mailto:sidd1212004@gmail.com)  
-- **Team Mentorship** – WRO Future Engineers preparation and reference build development.  
+- **Team YoLabs** – WRO Future Engineers preparation and reference build development.  
 
 
 ---
