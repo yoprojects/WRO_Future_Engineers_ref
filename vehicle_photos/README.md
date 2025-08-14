@@ -1,4 +1,4 @@
-# 🚗 Vehicle Photos
+## Vehicle Photos
 
 This folder contains **high-quality reference images** of the WRO Future Engineers prototype vehicle from multiple angles.  
 These images are useful for documentation, replication, and visual reference during assembly.
@@ -9,11 +9,11 @@ These images are useful for documentation, replication, and visual reference dur
 
 | View        | Image |
 |-------------|-------|
-| **Front View**  | ![Front View](v_front.jpg) |
-| **Back View**   | ![Back View](v_back.jpg) |
-| **Left View**   | ![Left View](v_left.jpg) |
-| **Right View**  | ![Right View](v_right.jpg) |
-| **Top View**    | ![Top View](v_top.jpg) |
+| **Front View**  | <img src="v_front.jpg" alt="Front View" width="300"> |
+| **Back View**   | <img src="v_back.jpg" alt="Back View" width="300"> |
+| **Left View**   | <img src="v_left.jpg" alt="Left View" width="300"> |
+| **Right View**  | <img src="v_right.jpg" alt="Right View" width="300"> |
+| **Top View**    | <img src="v_top.jpg" alt="Top View" width="300"> |
 
 ---
 
