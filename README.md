@@ -52,6 +52,9 @@ Key features:
 ---
 
 ## Team Members
+<p align="center">
+  <img src="team_photo/Yolabs-logo.jpeg" alt="Team Photo" width="500">
+</p>
 
 - **Siddharth Andhale** – Lead Design & Programming – [sidd1212004@gmail.com](mailto:sidd1212004@gmail.com)  
 - **Team Mentorship** – WRO Future Engineers preparation and reference build development.  
