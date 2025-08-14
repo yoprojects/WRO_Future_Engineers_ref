@@ -53,7 +53,7 @@ Key features:
 
 ## Team Members
 <p align="center">
-  <img src="team_photo/Yolabs-logo.jpeg" alt="Team Photo" width="500">
+  <img src="team_photo/Yolabs-logo.jpg" alt="Team Photo" width="500">
 </p>
 
 - **Siddharth Andhale** – Lead Design & Programming – [sidd1212004@gmail.com](mailto:sidd1212004@gmail.com)  
