@@ -74,39 +74,32 @@ If you prefer not to use PlatformIO, you can still use the same logic from `main
 The following diagram illustrates the decision-making process used by the vehicle during autonomous operation.
 
 ```mermaid
-flowchart TD
+flowchart LR
 
-A[Start / Power On] --> B[Wait for Button Press]
-B --> C[Setup Hardware: Servo, IMU, Ultrasonics, WiFi, Telnet]
-C --> D[Calibrate Gyroscope & Record Starting Position]
+A[Start] --> B[Wait for Button Press]
+B --> C[Setup Hardware & Sensors]
+C --> D[Calibrate IMU & Record Start Pos]
 D --> E[Main Loop]
-
-E --> F[Update IMU & Ultrasonic Sensors]
-F --> G[Log Data to Serial & Telnet]
-
+E --> F[Update Sensors]
+F --> G[Log Data]
 G --> H{Returning to Start?}
-H -- Yes --> I{At Starting Position?}
-I -- Yes --> J[Stop Motors & End Program]
-I -- No --> K[Continue Navigation]
+H -- Yes --> I{At Start Pos?}
+I -- Yes --> J[Stop & End]
+I -- No --> K[Navigate]
 H -- No --> K
-
 K --> L[Check Lap Completion]
-
-L --> M{Front Distance < 25cm?}
-M -- Yes --> N[Emergency: Move Backward to Safe Distance]
-M -- No --> O{Front < 75cm AND Right > 90cm?}
-O -- Yes --> P[Right Turn (90° with IMU)]
-P --> Q[Drive Forward 300ms]
+L --> M{Front < 25cm?}
+M -- Yes --> N[Move Backward]
+M -- No --> O{Front < 75 & Right > 90?}
+O -- Yes --> P[Right Turn 90°]
+P --> Q[Forward 300ms]
 Q --> F
-
-O -- No --> R{Front < 70cm AND Right < 75cm?}
-R -- Yes --> S[Left Turn (~133° with IMU)]
+O -- No --> R{Front < 70 & Right < 75?}
+R -- Yes --> S[Left Turn 133°]
 S --> Q
-
-R -- No --> T{Right > 90cm?}
-T -- Yes --> U[Steer Straight & Drive Forward]
-T -- No --> V[Default: Drive Forward Straight]
-
+R -- No --> T{Right > 90?}
+T -- Yes --> U[Straight Forward]
+T -- No --> V[Default Forward]
 U --> F
 V --> F
 ```
