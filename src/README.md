@@ -1,4 +1,4 @@
-# 🚗 ESP32 Vehicle – Open Round Code (v01)
+# ESP32 Vehicle – Open Round Code (v01)
 
 This folder contains the **prototype reference code** for the WRO Future Engineers 2025 **Open Challenge Round** using the ESP32 microcontroller.  
 The code implements autonomous navigation logic for the **reference vehicle**, including steering, motor control, and sensor integration.
