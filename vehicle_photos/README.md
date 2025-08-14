@@ -1,4 +1,4 @@
-## Vehicle Photos
+# Vehicle Photos
 
 This folder contains **high-quality reference images** of the WRO Future Engineers prototype vehicle from multiple angles.  
 These images are useful for documentation, replication, and visual reference during assembly.
@@ -25,5 +25,3 @@ These images are useful for documentation, replication, and visual reference dur
 - `v_top.jpg` – Top-down view
 
 ---
-
-> **Tip:** These images can be embedded in reports, presentations, or assembly guides for better clarity.
