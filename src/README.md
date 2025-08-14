@@ -70,6 +70,7 @@ If you prefer not to use PlatformIO, you can still use the same logic from `main
 
 ---
 ## 📊 Control Flow – main.cpp
+
 The following diagram illustrates the decision-making process used by the vehicle during autonomous operation.
 
 ```mermaid
@@ -95,7 +96,8 @@ L --> M{Front Distance < 25cm?}
 M -- Yes --> N[Emergency: Move Backward to Safe Distance]
 M -- No --> O{Front < 75cm AND Right > 90cm?}
 O -- Yes --> P[Right Turn (90° with IMU)]
-P --> Q[Drive Forward 300ms] --> F
+P --> Q[Drive Forward 300ms]
+Q --> F
 
 O -- No --> R{Front < 70cm AND Right < 75cm?}
 R -- Yes --> S[Left Turn (~133° with IMU)]
