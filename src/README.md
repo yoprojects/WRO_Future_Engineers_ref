@@ -1,4 +1,4 @@
-# ESP32 Vehicle – Open Round Code (v01)
+# WRO Future Engineer Vehicle – Open Round Code (v01)
 
 This folder contains the **prototype reference code** for the WRO Future Engineers 2025 **Open Challenge Round** using the ESP32 microcontroller.  
 The code implements autonomous navigation logic for the **reference vehicle**, including steering, motor control, and sensor integration.
@@ -68,6 +68,46 @@ If you prefer not to use PlatformIO, you can still use the same logic from `main
 
 7. **Open Serial Monitor** to view debug output.
 
+---
+## 📊 Control Flow – main.cpp
+The following diagram illustrates the decision-making process used by the vehicle during autonomous operation.
+
+```mermaid
+flowchart TD
+
+A[Start / Power On] --> B[Wait for Button Press]
+B --> C[Setup Hardware: Servo, IMU, Ultrasonics, WiFi, Telnet]
+C --> D[Calibrate Gyroscope & Record Starting Position]
+D --> E[Main Loop]
+
+E --> F[Update IMU & Ultrasonic Sensors]
+F --> G[Log Data to Serial & Telnet]
+
+G --> H{Returning to Start?}
+H -- Yes --> I{At Starting Position?}
+I -- Yes --> J[Stop Motors & End Program]
+I -- No --> K[Continue Navigation]
+H -- No --> K
+
+K --> L[Check Lap Completion]
+
+L --> M{Front Distance < 25cm?}
+M -- Yes --> N[Emergency: Move Backward to Safe Distance]
+M -- No --> O{Front < 75cm AND Right > 90cm?}
+O -- Yes --> P[Right Turn (90° with IMU)]
+P --> Q[Drive Forward 300ms] --> F
+
+O -- No --> R{Front < 70cm AND Right < 75cm?}
+R -- Yes --> S[Left Turn (~133° with IMU)]
+S --> Q
+
+R -- No --> T{Right > 90cm?}
+T -- Yes --> U[Steer Straight & Drive Forward]
+T -- No --> V[Default: Drive Forward Straight]
+
+U --> F
+V --> F
+```
 ---
 
 📌 **Notes**
