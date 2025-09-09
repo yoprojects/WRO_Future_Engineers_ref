@@ -363,7 +363,7 @@ void returnToStartNavigation(float distFront, float distRight) {
 // ===================================================================
 void setup() {
   Serial.begin(115200);
-  setupWiFiTelnet();
+  //setupWiFiTelnet();
 
   //pinMode(BUTTON_PIN, INPUT_PULLUP);
   pinMode(IN1, OUTPUT);
@@ -433,7 +433,7 @@ void setup() {
 // ============================== LOOP ===============================
 // ===================================================================
 void loop() {
-  handleTelnetClient();
+  //handleTelnetClient();
 
   float yawNow = getCompensatedYaw();
   float distFront = readUltrasonicDistance(TRIG_FRONT, ECHO_FRONT);
