@@ -179,8 +179,6 @@ flowchart TD
 - Status reporting back to master
 ---
 
----
-
 ## 📌 Implementation Notes
 
 ### **Open Round**
