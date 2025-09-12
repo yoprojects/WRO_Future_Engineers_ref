@@ -178,7 +178,7 @@ flowchart TD
 - Real-time response execution
 - Status reporting back to master
 ---
-```
+
 ---
 
 ## 📌 Implementation Notes
