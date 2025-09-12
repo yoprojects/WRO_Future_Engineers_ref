@@ -27,19 +27,39 @@
 // Globals
 // ==============================
 Servo steeringServo;
-bool systemStarted = false;   // Only runs after START received
+bool systemStarted = false;
+
+// Current motor and servo states
+int currentSpeed = 0;
+int currentSteering = SERVO_STRAIGHT;
+
+// Timing for non-blocking operations
+unsigned long lastSensorRead = 0;
+unsigned long lastStatusSend = 0;
+const unsigned long SENSOR_INTERVAL = 50;  // Read sensors every 50ms
+const unsigned long STATUS_INTERVAL = 50;  // Send status every 50ms
+
+// Latest sensor readings
+long frontDistance = 999;
+long leftDistance = 999;
+long rightDistance = 999;
+
+// Command buffer to handle latest command only
+String latestCommand = "";
+bool hasNewCommand = false;
 
 // ==============================
 // Helper Functions
 // ==============================
-long readUltrasonic(int trig, int echo) {
+long readUltrasonicNonBlocking(int trig, int echo) {
   digitalWrite(trig, LOW);
   delayMicroseconds(2);
   digitalWrite(trig, HIGH);
   delayMicroseconds(10);
   digitalWrite(trig, LOW);
 
-  long duration = pulseIn(echo, HIGH, 25000); // 25ms timeout
+  // Use shorter timeout to prevent blocking
+  long duration = pulseIn(echo, HIGH, 15000); // 15ms timeout instead of 25ms
   if (duration == 0) return 999;              // no echo
   return duration * 0.034 / 2;                // distance in cm
 }
@@ -48,21 +68,72 @@ void setMotor(int speed) {
   if (speed > 0) {
     digitalWrite(IN1, HIGH);
     digitalWrite(IN2, LOW);
-    analogWrite(ENA, speed);   // 0–255
+    analogWrite(ENA, constrain(speed, 0, 255));
   } else if (speed < 0) {
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, HIGH);
-    analogWrite(ENA, -speed);  // reverse
+    analogWrite(ENA, constrain(-speed, 0, 255));
   } else {
     digitalWrite(IN1, LOW);
     digitalWrite(IN2, LOW);
-    analogWrite(ENA, 0);       // stop
+    analogWrite(ENA, 0);
   }
+  currentSpeed = speed;
 }
 
 void setSteering(int angle) {
   angle = constrain(angle, SERVO_LEFT, SERVO_RIGHT);
   steeringServo.write(angle);
+  currentSteering = angle;
+}
+
+void readAllSensors() {
+  // Read all three sensors quickly
+  frontDistance = readUltrasonicNonBlocking(TRIG_FRONT, ECHO_FRONT);
+  leftDistance = readUltrasonicNonBlocking(TRIG_LEFT, ECHO_LEFT);
+  rightDistance = readUltrasonicNonBlocking(TRIG_RIGHT, ECHO_RIGHT);
+}
+
+void processLatestCommand() {
+  if (!hasNewCommand) return;
+  
+  String cmd = latestCommand;
+  latestCommand = "";
+  hasNewCommand = false;
+  
+  if (cmd.length() > 0) {
+    int commaIndex = cmd.indexOf(',');
+    if (commaIndex > 0) {
+      int speed = cmd.substring(0, commaIndex).toInt();
+      int steering = cmd.substring(commaIndex + 1).toInt();
+
+      // Apply commands immediately
+      setMotor(speed);
+      setSteering(steering);
+      
+      // Optional: Send acknowledgment for critical commands
+      if (abs(speed) > 200 || abs(steering - SERVO_STRAIGHT) > 40) {
+        Serial.print("ACK:");
+        Serial.print(speed);
+        Serial.print(",");
+        Serial.println(steering);
+      }
+    }
+  }
+}
+
+void handleSerialInput() {
+  // Process all available serial data to get the latest command
+  while (Serial.available()) {
+    String incomingCmd = Serial.readStringUntil('\n');
+    incomingCmd.trim();
+    
+    if (incomingCmd.length() > 0) {
+      // Always keep only the latest command (overwrite previous)
+      latestCommand = incomingCmd;
+      hasNewCommand = true;
+    }
+  }
 }
 
 // ==============================
@@ -70,6 +141,7 @@ void setSteering(int angle) {
 // ==============================
 void setup() {
   Serial.begin(115200);
+  Serial.setTimeout(1); // Very short timeout for non-blocking reads
 
   pinMode(IN1, OUTPUT);
   pinMode(IN2, OUTPUT);
@@ -86,13 +158,17 @@ void setup() {
   setSteering(SERVO_STRAIGHT);
   setMotor(0);
 
-  Serial.println("ESP32 ready, waiting for START...");
+  Serial.println("ESP32_V2_READY");
+  Serial.flush();
 }
 
 // ==============================
-// Main Loop
+// Main Loop - Non-blocking approach
 // ==============================
 void loop() {
+  unsigned long currentTime = millis();
+  
+  // Handle startup handshake
   if (!systemStarted) {
     if (Serial.available()) {
       String msg = Serial.readStringUntil('\n');
@@ -100,38 +176,43 @@ void loop() {
       if (msg == "START") {
         systemStarted = true;
         Serial.println("ACK_START");
+        Serial.flush();
+        
+        // Initialize sensor readings
+        readAllSensors();
+        lastSensorRead = currentTime;
+        lastStatusSend = currentTime;
       }
     }
-    delay(50);
+    delay(10);
     return;
   }
 
-  // Handle motor + steering commands
-  if (Serial.available()) {
-    String cmd = Serial.readStringUntil('\n');
-    cmd.trim();
+  // 1. HIGHEST PRIORITY: Handle incoming commands immediately
+  handleSerialInput();
+  processLatestCommand();
 
-    if (cmd.length() > 0) {
-      int commaIndex = cmd.indexOf(',');
-      if (commaIndex > 0) {
-        int speed = cmd.substring(0, commaIndex).toInt();
-        int steering = cmd.substring(commaIndex + 1).toInt();
-
-        setMotor(speed);
-        setSteering(steering);
-      }
-    }
+  // 2. MEDIUM PRIORITY: Read sensors at regular intervals
+  if (currentTime - lastSensorRead >= SENSOR_INTERVAL) {
+    readAllSensors();
+    lastSensorRead = currentTime;
   }
 
-  // Read ultrasonic sensors
-  long front = readUltrasonic(TRIG_FRONT, ECHO_FRONT);
-  long left  = readUltrasonic(TRIG_LEFT, ECHO_LEFT);
-  long right = readUltrasonic(TRIG_RIGHT, ECHO_RIGHT);
+  // 3. LOW PRIORITY: Send status data at regular intervals
+  if (currentTime - lastStatusSend >= STATUS_INTERVAL) {
+    // Send sensor data back to RPi in expected format
+    Serial.print("DIST,");
+    Serial.print(frontDistance);
+    Serial.print(",");
+    Serial.print(leftDistance);
+    Serial.print(",");
+    Serial.print(rightDistance);
+    Serial.println();
+    Serial.flush(); // Ensure data is sent immediately
+    
+    lastStatusSend = currentTime;
+  }
 
-  // Send data back to RPi
-  Serial.print(front); Serial.print(",");
-  Serial.print(left);  Serial.print(",");
-  Serial.print(right); Serial.println();
-
-  delay(50);  // ~20Hz update rate
+  // Small delay to prevent overwhelming the system
+  delay(1); // Very small delay - allows for ~1000 Hz loop rate
 }
