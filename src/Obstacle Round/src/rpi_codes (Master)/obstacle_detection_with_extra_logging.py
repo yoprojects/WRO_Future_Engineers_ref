@@ -1382,7 +1382,7 @@ def draw_debug(frame, red_blocks, green_blocks, steering, state):
     if RECORD_VIDEO and video_writer is not None:
         # Convert RGB to BGR for video writer
         bgr_frame = cv2.cvtColor(debug_frame, cv2.COLOR_RGB2BGR)
-        video_writer.write(bgr_frame)
+        video_writer.write(debug_frame)
     
     return debug_frame
 
